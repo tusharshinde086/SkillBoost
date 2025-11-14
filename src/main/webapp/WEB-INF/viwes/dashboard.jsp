@@ -11,11 +11,11 @@
 <body>
 
 <% 
-    // Retrieve the Student object from the session
-    Student student = (Student) session.getAttribute("currentStudent");
-    // Ensure the student object exists before trying to access its methods
-    if (student == null) {
-        // Should be caught by DashboardServlet, but good practice to check
+ 
+Student student = (Student) session.getAttribute("currentStudent");
+   
+if (student == null) {
+        
         response.sendRedirect("login");
         return;
     }
