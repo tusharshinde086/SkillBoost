@@ -110,7 +110,48 @@ public class StudentDAO {
         }
         return skill;
     }
+ 
 
+ // C: Create a new student in dbb
+ public boolean registerStudent(Student student) {
+     
+     if (isEmailRegistered(student.getEmail())) {
+         return false; 
+     }
+
+     String INSERT_STUDENT_SQL = "INSERT INTO student (name, email, password) VALUES (?, ?, ?)";
+
+     try (Connection connection = DBConnect.getConnection();
+          PreparedStatement ps = connection.prepareStatement(INSERT_STUDENT_SQL)) {
+         
+         ps.setString(1, student.getName());
+         ps.setString(2, student.getEmail());
+         ps.setString(3, student.getPassword());
+         
+         return ps.executeUpdate() > 0;
+     } catch (Exception e) {
+         e.printStackTrace();
+         return false;
+     }
+ }
+
+ // R: Helper method to check if an email exists
+ public boolean isEmailRegistered(String email) {
+     String SELECT_EMAIL_SQL = "SELECT id FROM student WHERE email = ?";
+     boolean exists = false;
+
+     try (Connection connection = DBConnect.getConnection();
+          PreparedStatement ps = connection.prepareStatement(SELECT_EMAIL_SQL)) {
+         
+         ps.setString(1, email);
+         ResultSet rs = ps.executeQuery();
+         
+         exists = rs.next(); 
+     } catch (Exception e) {
+         e.printStackTrace();
+     }
+     return exists;
+ }
     // D: Delete 
     public boolean deleteSkill(int progressId) {
         String SQL = "DELETE FROM skill_progress WHERE progress_id = ?";
