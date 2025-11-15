@@ -1,7 +1,6 @@
 
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %> 
-<%-- REMOVED: <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %> --%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -28,22 +27,38 @@
         <div class="alert alert-info">${requestScope.message}</div>
     </c:if>
 
+    <c:set var="editSkill" value="${requestScope.skillToEdit}" />
+    <c:set var="mode" value="${editSkill != null ? 'Edit' : 'Add'}" />
+
     <div class="card mb-4">
         <div class="card-header bg-primary text-white">
-            Track a New Skill or Update an Existing One
+            ${mode} Skill Progress
         </div>
         <div class="card-body">
             <form action="skill" method="post" class="row g-3">
+                <input type="hidden" name="progressId" value="${editSkill.progressId}" />
+                
                 <div class="col-md-5">
                     <label for="skillName" class="form-label">Skill Name</label>
-                    <input type="text" class="form-control" id="skillName" name="skillName" required>
+                    <input type="text" class="form-control" id="skillName" name="skillName" 
+                           value="${editSkill.skillName}" required 
+                           ${mode eq 'Edit' ? 'readonly' : ''} />
+                    <c:if test="${mode eq 'Edit'}">
+                        <div class="form-text text-danger">Skill name cannot be changed during edit.</div>
+                    </c:if>
                 </div>
+                
                 <div class="col-md-5">
                     <label for="currentLevel" class="form-label">Current Level (1.0 - 10.0)</label>
-                    <input type="number" step="0.1" min="1.0" max="10.0" class="form-control" id="currentLevel" name="currentLevel" required>
+                    <input type="number" step="0.1" min="1.0" max="10.0" class="form-control" 
+                           id="currentLevel" name="currentLevel" 
+                           value="${editSkill.currentLevel}" required>
                 </div>
+                
                 <div class="col-md-2 d-flex align-items-end">
-                    <button type="submit" class="btn btn-success w-100">Save Progress</button>
+                    <button type="submit" class="btn btn-success w-100">
+                        ${mode eq 'Edit' ? 'Update Skill' : 'Save New Skill'}
+                    </button>
                 </div>
             </form>
         </div>
@@ -62,6 +77,7 @@
                         <th>Level</th>
                         <th>Progress Bar</th>
                         <th>Last Updated</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -75,13 +91,17 @@
                                     <div class="progress-bar progress-bar-striped bg-info" role="progressbar" 
                                          style="width: ${progressPercent}%;" 
                                          aria-valuenow="${skill.currentLevel}" aria-valuemin="0" aria-valuemax="10">
-                                         <c:set var="level" value="${skill.currentLevel}" />
-                                         <fmt:formatNumber value="${progressPercent}" pattern="0"/>% 
+                                         ${(skill.currentLevel/10) * 100}%
                                     </div>
                                 </div>
                             </td>
-                            
-                            <td>${skill.formattedLastUpdated}</td> 
+                            <td>${skill.formattedLastUpdated}</td>
+                            <td>
+                                <a href="dashboard?edit=${skill.progressId}" class="btn btn-sm btn-info me-2">Edit</a>
+                                <a href="skill?delete=${skill.progressId}" 
+                                   onclick="return confirm('Are you sure you want to delete ${skill.skillName}?')"
+                                   class="btn btn-sm btn-danger">Delete</a>
+                            </td>
                         </tr>
                     </c:forEach>
                 </tbody>

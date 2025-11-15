@@ -1,4 +1,3 @@
-// src/main/java/com/skillboost.dao/DBConnect.java (REWRITTEN TO HARDCODE)
 
 package com.skillboost.dao;
 
@@ -15,7 +14,7 @@ public class DBConnect {
     static {
         try {
             Class.forName(JDBC_DRIVER); 
-            System.out.println("MySQL Driver loaded successfully.");
+           System.out.println("MySQL Driver loaded successfully.");
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
             throw new RuntimeException("MySQL JDBC Driver not found.", e);
@@ -24,8 +23,8 @@ public class DBConnect {
     
     public static Connection getConnection() {
         try {
-            // Use the hardcoded variables
-            return DriverManager.getConnection(DB_URL, USER, PASS);
+        
+           return DriverManager.getConnection(DB_URL, USER, PASS);
         } catch (Exception e) {
             System.err.println("Database connection failed!");
             e.printStackTrace();

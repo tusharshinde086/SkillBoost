@@ -1,12 +1,12 @@
-// src/main/java/com/skillboost.controller/DashboardServlet.java
+
 
 package com.skillboost.controller;
 
-import com.skillboost.dao.StudentDAO; // Import DAO
-import com.skillboost.model.Student;  // Import Student model
-import com.skillboost.model.SkillProgress; // Import SkillProgress model
+import com.skillboost.dao.StudentDAO;
+import com.skillboost.model.Student;
+import com.skillboost.model.SkillProgress;
 import java.io.IOException;
-import java.util.List;                 // Import List
+import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -17,9 +17,8 @@ import javax.servlet.http.HttpSession;
 @WebServlet("/dashboard")
 public class DashboardServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    private StudentDAO studentDAO; // Declare DAO instance
+    private StudentDAO studentDAO;
 
-    // Initialize DAO when the servlet is created
     public void init() {
         studentDAO = new StudentDAO();
     }
@@ -31,21 +30,36 @@ public class DashboardServlet extends HttpServlet {
         Student student = (session != null) ? (Student) session.getAttribute("currentStudent") : null;
 
         if (student != null) {
-            // New Logic: Load skills for the current student
-            // This line requires the getSkillsByStudentId method in StudentDAO
+            // 1. Check for Edit in mm
+            String editIdStr = request.getParameter("edit");
+            if (editIdStr != null && !editIdStr.isEmpty()) {
+                try {
+                    int editId = Integer.parseInt(editIdStr);
+                  
+                    SkillProgress skillToEdit = studentDAO.getSkillById(editId); 
+                    
+                    
+                    if (skillToEdit != null && skillToEdit.getStudentId() == student.getId()) {
+                        request.setAttribute("skillToEdit", skillToEdit);
+                    }
+                } catch (NumberFormatException e) {
+                    // Ignore    if errors. ;
+                }
+            }
+
+            // 2. Load all skills for the current student  in app .
             List<SkillProgress> skills = studentDAO.getSkillsByStudentId(student.getId());
-            request.setAttribute("skillList", skills); // Attach list to request
+            request.setAttribute("skillList", skills); 
             
-            // Handle flash message from redirect (e.g., after updating a skill)
+            // 3. for messege handlingss
             String message = (String) session.getAttribute("message");
             if (message != null) {
                 request.setAttribute("message", message);
-                session.removeAttribute("message"); // Remove message so it doesn't reappear
+                session.removeAttribute("message");
             }
             
             request.getRequestDispatcher("/WEB-INF/views/dashboard.jsp").forward(request, response);
         } else {
-            // Not logged in, redirect to login page
             response.sendRedirect("login");
         }
     }

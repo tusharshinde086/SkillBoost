@@ -3,12 +3,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>SkillBoost</title>
     <meta http-equiv="refresh" content="0; url=login"> 
+    <title>SkillBoost Loading...</title>
 </head>
 <body>
-    <p>Loading SkillBoost Student Tracker...</p>
-    <p>If you are not redirected automatically, click <a href="login">here</a>.</p>
+    <p>Loading... Click <a href="login">here</a> if not redirected.</p>
 </body>
 </html>

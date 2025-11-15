@@ -1,4 +1,3 @@
-// src/main/java/com/skillboost.controller/SkillServlet.java
 
 package com.skillboost.controller;
 
@@ -22,6 +21,7 @@ public class SkillServlet extends HttpServlet {
         studentDAO = new StudentDAO();
     }
 
+    // Handles Add/Update
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
@@ -29,33 +29,74 @@ public class SkillServlet extends HttpServlet {
         Student student = (session != null) ? (Student) session.getAttribute("currentStudent") : null;
 
         if (student == null) {
-            response.sendRedirect("login"); // Redirect if not logged in
+            response.sendRedirect("login");
             return;
         }
 
-        // 1. Get parameters from the form
-        String skillName = request.getParameter("skillName");
-        // Parse level, ensure it's a number
+        // 1. Get parameters
+        String skillName = request.getParameter("skillName"); // Input box
+        String levelStr = request.getParameter("currentLevel");
+        String progressIdStr = request.getParameter("progressId"); // Hidden field for updates
+
+        // 2. Validation
+        if (skillName == null || skillName.trim().isEmpty() || levelStr == null) {
+             session.setAttribute("message", "Skill name and level are required.");
+             response.sendRedirect("dashboard");
+             return;
+        }
+        
         double level;
         try {
-            level = Double.parseDouble(request.getParameter("currentLevel"));
+            level = Double.parseDouble(levelStr);
         } catch (NumberFormatException e) {
-            request.setAttribute("message", "Invalid level entered.");
+            session.setAttribute("message", "Invalid level entered.");
             response.sendRedirect("dashboard");
             return;
         }
 
-        // 2. Create the SkillProgress object
+        // 3. Create the SkillProgress object in app
         SkillProgress skill = new SkillProgress(student.getId(), skillName, level);
+        
+   
 
-        // 3. Save/Update via DAO
+        // 4. Save/Update via DAO
         if (studentDAO.saveOrUpdateSkill(skill)) {
-            request.getSession().setAttribute("message", "Skill '" + skillName + "' updated successfully!");
+            session.setAttribute("message", "Skill '" + skillName + "' updated successfully!");
         } else {
-            request.getSession().setAttribute("message", "Error updating skill.");
+            session.setAttribute("message", "Error updating skill.");
         }
 
-        // 4. Redirect back to dashboard to see updated list
+        response.sendRedirect("dashboard");
+    }
+
+    // Delete
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        
+        HttpSession session = request.getSession(false);
+        Student student = (session != null) ? (Student) session.getAttribute("currentStudent") : null;
+
+        String deleteIdStr = request.getParameter("delete");
+
+        if (student == null || deleteIdStr == null || deleteIdStr.isEmpty()) {
+            response.sendRedirect("login"); 
+            return;
+        }
+
+        try {
+            int deleteId = Integer.parseInt(deleteIdStr);
+            
+            
+            
+            if (studentDAO.deleteSkill(deleteId)) {
+                session.setAttribute("message", "Skill deleted successfully!");
+            } else {
+                session.setAttribute("message", "Error deleting skill.");
+            }
+        } catch (NumberFormatException e) {
+            session.setAttribute("message", "Invalid delete request.");
+        }
+        
         response.sendRedirect("dashboard");
     }
 }

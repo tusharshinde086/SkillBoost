@@ -11,7 +11,7 @@ public class SkillProgress {
     private double currentLevel; 
     private LocalDateTime lastUpdated;
 
-    
+    //skillls
     public SkillProgress() {}
     
     public SkillProgress(int progressId, int studentId, String skillName, double currentLevel, LocalDateTime lastUpdated) {
